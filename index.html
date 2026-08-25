@@ -47,6 +47,29 @@
             font-family: 'Courier New', monospace;
             max-width: 300px;
         }
+        #lockButton {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            font-size: 14px;
+            background: rgba(100, 150, 200, 0.8);
+            color: #fff;
+            border: 2px solid #4a8fd8;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        #lockButton:hover {
+            background: rgba(120, 170, 220, 0.9);
+            border-color: #5aa8ff;
+        }
+        #lockButton:active {
+            transform: scale(0.95);
+        }
         .warning {
             color: #ff6b6b;
             font-weight: bold;
@@ -59,15 +82,14 @@
         <div>You are in the Backrooms</div>
         <div id="position">Position: (0, 0, 0)</div>
         <div id="fps">FPS: 60</div>
-        <div id="lockStatus">Mouse Lock: OFF (Press L)</div>
     </div>
     <div id="controls">
         <div><strong>CONTROLS:</strong></div>
         <div>W/A/S/D - Move</div>
         <div>MOUSE - Look around</div>
-        <div>L - Lock/Unlock mouse</div>
         <div>SPACE - Jump</div>
     </div>
+    <button id="lockButton">🔓 Lock Mouse</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
@@ -117,23 +139,22 @@ document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
 let mouseX = 0, mouseY = 0;
 let isLocked = false;
 
-// Toggle mouse lock with L key
-document.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'l') {
-        if (isLocked) {
-            document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
-            document.exitPointerLock();
-            isLocked = false;
-        } else {
-            renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock || renderer.domElement.mozRequestPointerLock;
-            renderer.domElement.requestPointerLock();
-        }
+const lockButton = document.getElementById('lockButton');
+
+// Toggle mouse lock with button
+lockButton.addEventListener('click', () => {
+    if (isLocked) {
+        document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+        document.exitPointerLock();
+    } else {
+        renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock || renderer.domElement.mozRequestPointerLock;
+        renderer.domElement.requestPointerLock();
     }
 });
 
 document.addEventListener('pointerlockchange', () => {
     isLocked = document.pointerLockElement === renderer.domElement;
-    document.getElementById('lockStatus').textContent = `Mouse Lock: ${isLocked ? 'ON' : 'OFF'} (Press L)`;
+    lockButton.textContent = isLocked ? '🔒 Unlock Mouse' : '🔓 Lock Mouse';
 });
 
 document.addEventListener('mousemove', (e) => {
@@ -144,10 +165,10 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-// Create Backrooms Floor (Brightest - #ffff99)
+// Create Backrooms Floor (Brown - #8B6F47)
 function createFloor() {
     const floorMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xffff99,
+        color: 0x8B6F47,
         roughness: 0.8,
         metalness: 0.1
     });
@@ -158,10 +179,10 @@ function createFloor() {
     scene.add(floor);
 }
 
-// Create Walls (Darker - #cccc77)
+// Create Walls (Yellow - #FFFF00)
 function createWalls() {
     const wallMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xcccc77,
+        color: 0xFFFF00,
         roughness: 0.9,
         metalness: 0
     });
@@ -202,10 +223,10 @@ function createWalls() {
     scene.add(rightWall);
 }
 
-// Create Ceiling (Darkest - #999955)
+// Create Ceiling (Darker Yellow - #CCCC00)
 function createCeiling() {
     const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x999955,
+        color: 0xCCCC00,
         roughness: 0.95,
         metalness: 0
     });
@@ -247,7 +268,7 @@ function createAtmosphere() {
             Math.random() * 10 + 5
         );
         const boxMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0xccccaa,
+            color: 0xCCCCAA,
             roughness: 0.7
         });
         const box = new THREE.Mesh(boxGeometry, boxMaterial);
