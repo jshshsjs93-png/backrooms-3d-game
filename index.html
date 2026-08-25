@@ -59,13 +59,14 @@
         <div>You are in the Backrooms</div>
         <div id="position">Position: (0, 0, 0)</div>
         <div id="fps">FPS: 60</div>
+        <div id="lockStatus">Mouse Lock: OFF (Press L)</div>
     </div>
     <div id="controls">
         <div><strong>CONTROLS:</strong></div>
         <div>W/A/S/D - Move</div>
         <div>MOUSE - Look around</div>
+        <div>L - Lock/Unlock mouse</div>
         <div>SPACE - Jump</div>
-        <div>Click canvas to lock mouse</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -116,13 +117,23 @@ document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
 let mouseX = 0, mouseY = 0;
 let isLocked = false;
 
-document.addEventListener('click', () => {
-    renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock || renderer.domElement.mozRequestPointerLock;
-    renderer.domElement.requestPointerLock();
+// Toggle mouse lock with L key
+document.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'l') {
+        if (isLocked) {
+            document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+            document.exitPointerLock();
+            isLocked = false;
+        } else {
+            renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock || renderer.domElement.mozRequestPointerLock;
+            renderer.domElement.requestPointerLock();
+        }
+    }
 });
 
 document.addEventListener('pointerlockchange', () => {
     isLocked = document.pointerLockElement === renderer.domElement;
+    document.getElementById('lockStatus').textContent = `Mouse Lock: ${isLocked ? 'ON' : 'OFF'} (Press L)`;
 });
 
 document.addEventListener('mousemove', (e) => {
@@ -133,7 +144,7 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-// Create Backrooms Floor
+// Create Backrooms Floor (Brightest - #ffff99)
 function createFloor() {
     const floorMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xffff99,
@@ -147,10 +158,10 @@ function createFloor() {
     scene.add(floor);
 }
 
-// Create Walls
+// Create Walls (Darker - #cccc77)
 function createWalls() {
     const wallMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xffff99,
+        color: 0xcccc77,
         roughness: 0.9,
         metalness: 0
     });
@@ -191,10 +202,10 @@ function createWalls() {
     scene.add(rightWall);
 }
 
-// Create Ceiling
+// Create Ceiling (Darkest - #999955)
 function createCeiling() {
     const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xffff88,
+        color: 0x999955,
         roughness: 0.95,
         metalness: 0
     });
